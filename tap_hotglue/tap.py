@@ -179,9 +179,9 @@ class TapHotglue(Tap):
         if http_method:
             stream_fields["rest_method"] = http_method
 
-        primary_keys = stream_data.get("primary_key") if self.airbyte_tap else stream_data.get("primary_keys")
+        primary_keys = stream_data.get("primary_keys")
         if primary_keys:
-            stream_fields["primary_keys"] = primary_keys
+            stream_fields["primary_keys"] = primary_keys if isinstance(primary_keys, list) else [primary_keys]
 
         if stream_data.get("incremental_sync"):
             replication_key = (

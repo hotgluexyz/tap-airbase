@@ -1,0 +1,7 @@
+{
+    "start_date": "2000-01-01T00:00:00.000Z",
+    "api_key": "TN5***",
+    "sandbox": true,
+    "tap_definition": "./tap_definition.json",
+    "hg_sync_output": "/home/hotglue/lVVeW/sync-output"
+}
