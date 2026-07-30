@@ -1,7 +1,7 @@
 [tool.poetry]
-name = "tap-hotglue"
-version = "0.0.20"
-description = "`tap-hotglue` is a Singer tap for Hotglue, built with the Meltano SDK for Singer Taps."
+name = "tap-airbase"
+version = "0.1.0"
+description = "`tap-airbase` is a Singer tap for Airbase, built with the Hotglue Singer SDK."
 authors = ["Hotglue"]
 keywords = [
     "ELT",
@@ -13,13 +13,7 @@ license = "Apache 2.0"
 python = "<3.11,>=3.7.1"
 requests = "^2.25.1"
 hotglue-singer-sdk = "^1.0.3"
-cached-property = "^1.5.2"
-cloudscraper = "^1.2.71"
-pyyaml = "6.0.2"
-Jinja2 = "3.1.6"
-isodate = "0.7.2"
-xmltodict = "^0.13.0"
-lxml = "4.9.3"
+typing-extensions = "^4.0.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "^6.2.5"
@@ -33,13 +27,12 @@ isort = "^5.10.1"
 
 [tool.isort]
 profile = "black"
-multi_line_output = 3 # Vertical Hanging Indent
-src_paths = "tap_hotglue"
+multi_line_output = 3
+src_paths = "tap_airbase"
 
 [build-system]
 requires = ["poetry-core>=1.0.8"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.scripts]
-# CLI declaration
-tap-hotglue = 'tap_hotglue.tap:TapHotglue.cli'
+tap-airbase = 'tap_airbase.tap:TapAirbase.cli'
