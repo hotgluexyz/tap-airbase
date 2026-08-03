@@ -2,9 +2,51 @@
 
 from __future__ import annotations
 
+from hotglue_singer_sdk import typing as th
 from typing_extensions import override
 
 from tap_airbase.client import AirbaseStream
+
+SPEND_OWNER = th.ObjectType(
+    th.Property("name", th.StringType),
+    th.Property("email", th.StringType),
+)
+
+SUBSIDIARY = th.ObjectType(
+    th.Property("erp_reference_id", th.StringType),
+    th.Property("name", th.StringType),
+)
+
+VENDOR = th.ObjectType(
+    th.Property("airbase_id", th.StringType),
+    th.Property("name", th.StringType),
+    th.Property("erp_reference_id", th.StringType),
+    th.Property("created_in_airbase", th.BooleanType),
+)
+
+ACCOUNT = th.ObjectType(
+    th.Property("erp_reference_id", th.StringType),
+    th.Property("name", th.StringType),
+)
+
+CURRENCY = th.ObjectType(
+    th.Property("erp_reference_id", th.StringType),
+    th.Property("iso_code", th.StringType),
+)
+
+EXPENSE_LINE = th.ObjectType(
+    th.Property("line_number", th.IntegerType),
+    th.Property("receipt_link", th.StringType),
+    th.Property("account", ACCOUNT),
+    th.Property("amount", th.StringType),
+    th.Property("tags", th.ArrayType(th.CustomType({}))),
+    th.Property("description", th.StringType),
+)
+
+SUBSIDIARY_REFERENCE = th.ObjectType(
+    th.Property("airbase_id", th.StringType),
+    th.Property("erp_reference_id", th.StringType),
+)
 
 
 class LedgerEntriesStream(AirbaseStream):
@@ -13,98 +55,36 @@ class LedgerEntriesStream(AirbaseStream):
     name = "ledger_entries"
     path = "/v1/accounting/ledger_entries/"
     primary_keys = ["airbase_id"]
-    schema = {
-        "type": "object",
-        "properties": {
-            "airbase_id": {"type": ["string", "null"]},
-            "erp_reference_id": {"type": ["string", "null"]},
-            "erp_url": {"type": ["string", "null"]},
-            "airbase_url": {"type": ["string", "null"]},
-            "type": {"type": ["string", "null"]},
-            "status": {"type": ["string", "null"]},
-            "error_message": {"type": ["string", "null"]},
-            "spend_owner": {
-                "type": ["object", "null"],
-                "properties": {
-                    "name": {"type": ["string", "null"]},
-                    "email": {"type": ["string", "null"]},
-                },
-                "additionalProperties": True,
-            },
-            "subsidiary": {
-                "type": ["object", "null"],
-                "properties": {
-                    "erp_reference_id": {"type": ["string", "null"]},
-                    "name": {"type": ["string", "null"]},
-                },
-                "additionalProperties": True,
-            },
-            "credit_mode": {"type": ["string", "null"]},
-            "vendor": {
-                "type": ["object", "null"],
-                "properties": {
-                    "airbase_id": {"type": ["string", "null"]},
-                    "name": {"type": ["string", "null"]},
-                    "erp_reference_id": {"type": ["string", "null"]},
-                    "created_in_airbase": {"type": ["boolean", "null"]},
-                },
-                "additionalProperties": True,
-            },
-            "employee": {"type": ["object", "null"]},
-            "invoice_number": {"type": ["string", "null"]},
-            "bank_account": {"type": ["object", "null"]},
-            "ap_account": {
-                "type": ["object", "null"],
-                "properties": {
-                    "erp_reference_id": {"type": ["string", "null"]},
-                    "name": {"type": ["string", "null"]},
-                },
-                "additionalProperties": True,
-            },
-            "applied_to": {"type": ["object", "null"]},
-            "receipt_link": {"type": ["string", "null"]},
-            "entry_date": {"type": ["string", "null"], "format": "date-time"},
-            "payment_entry_date": {"type": ["string", "null"], "format": "date-time"},
-            "currency": {
-                "type": ["object", "null"],
-                "properties": {
-                    "erp_reference_id": {"type": ["string", "null"]},
-                    "iso_code": {"type": ["string", "null"]},
-                },
-                "additionalProperties": True,
-            },
-            "total_amount": {"type": ["string", "null"]},
-            "transaction_tags": {"type": ["array", "null"], "items": {}},
-            "notes": {"type": ["string", "null"]},
-            "is_amortized": {"type": ["boolean", "null"]},
-            "amortization_account": {"type": ["object", "null"]},
-            "amortization_start_date": {"type": ["string", "null"], "format": "date-time"},
-            "amortization_end_date": {"type": ["string", "null"], "format": "date-time"},
-            "expense_list": {
-                "type": ["array", "null"],
-                "items": {
-                    "type": "object",
-                    "properties": {
-                        "line_number": {"type": ["integer", "null"]},
-                        "receipt_link": {"type": ["string", "null"]},
-                        "account": {
-                            "type": ["object", "null"],
-                            "properties": {
-                                "erp_reference_id": {"type": ["string", "null"]},
-                                "name": {"type": ["string", "null"]},
-                            },
-                            "additionalProperties": True,
-                        },
-                        "amount": {"type": ["string", "null"]},
-                        "tags": {"type": ["array", "null"], "items": {}},
-                        "description": {"type": ["string", "null"]},
-                    },
-                    "additionalProperties": True,
-                },
-            },
-        },
-        "additionalProperties": True,
-    }
+    schema = th.PropertiesList(
+        th.Property("airbase_id", th.StringType),
+        th.Property("erp_reference_id", th.StringType),
+        th.Property("erp_url", th.StringType),
+        th.Property("airbase_url", th.StringType),
+        th.Property("type", th.StringType),
+        th.Property("status", th.StringType),
+        th.Property("error_message", th.StringType),
+        th.Property("spend_owner", SPEND_OWNER),
+        th.Property("subsidiary", SUBSIDIARY),
+        th.Property("credit_mode", th.StringType),
+        th.Property("vendor", VENDOR),
+        th.Property("employee", th.ObjectType()),
+        th.Property("invoice_number", th.StringType),
+        th.Property("bank_account", th.ObjectType()),
+        th.Property("ap_account", ACCOUNT),
+        th.Property("applied_to", th.ObjectType()),
+        th.Property("receipt_link", th.StringType),
+        th.Property("entry_date", th.DateTimeType),
+        th.Property("payment_entry_date", th.DateTimeType),
+        th.Property("currency", CURRENCY),
+        th.Property("total_amount", th.StringType),
+        th.Property("transaction_tags", th.ArrayType(th.CustomType({}))),
+        th.Property("notes", th.StringType),
+        th.Property("is_amortized", th.BooleanType),
+        th.Property("amortization_account", th.ObjectType()),
+        th.Property("amortization_start_date", th.DateTimeType),
+        th.Property("amortization_end_date", th.DateTimeType),
+        th.Property("expense_list", th.ArrayType(EXPENSE_LINE)),
+    ).to_dict()
 
 
 class VendorsStream(AirbaseStream):
@@ -113,27 +93,18 @@ class VendorsStream(AirbaseStream):
     name = "vendors"
     path = "/v1/accounting/vendors/"
     primary_keys = ["airbase_id"]
-    schema = {
-        "type": "object",
-        "properties": {
-            "airbase_id": {"type": ["string", "null"]},
-            "erp_reference_id": {"type": ["string", "null"]},
-            "erp_parent_reference_id": {"type": ["string", "null"]},
-            "name": {"type": ["string", "null"]},
-            "is_active": {"type": ["boolean", "null"]},
-            "email": {"type": ["string", "null"]},
-            "subsidiary_reference_ids": {
-                "type": ["array", "null"],
-                "items": {
-                    "type": "object",
-                    "properties": {
-                        "airbase_id": {"type": ["string", "null"]},
-                        "erp_reference_id": {"type": ["string", "null"]},
-                    },
-                },
-            },
-        },
-    }
+    schema = th.PropertiesList(
+        th.Property("airbase_id", th.StringType),
+        th.Property("erp_reference_id", th.StringType),
+        th.Property("erp_parent_reference_id", th.StringType),
+        th.Property("name", th.StringType),
+        th.Property("is_active", th.BooleanType),
+        th.Property("email", th.StringType),
+        th.Property(
+            "subsidiary_reference_ids",
+            th.ArrayType(SUBSIDIARY_REFERENCE),
+        ),
+    ).to_dict()
 
     @override
     def get_url_params(

@@ -45,7 +45,8 @@ class AirbaseStream(RESTStream):
         previous_token: Any | None,
     ) -> Any | None:
         page = previous_token or 1
-        if next(self.parse_response(response), None):
+        if next(iter(self.parse_response(response)), None):
+            self.logger.info(f"Next page token: {page + 1}")
             return page + 1
         return None
 
