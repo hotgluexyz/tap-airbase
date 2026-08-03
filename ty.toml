@@ -1,0 +1,4 @@
+[src]
+exclude = [
+    "__smoke-tests__/**"
+]

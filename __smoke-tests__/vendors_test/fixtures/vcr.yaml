@@ -1,0 +1,175 @@
+interactions:
+- request:
+    body: null
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      User-Agent:
+      - python-requests/2.32.3
+    method: GET
+    uri: https://api-stage.airbase.io/v1/accounting/vendors/?erp_reference_id=
+  response:
+    body:
+      string: '{"data": [{"id": "-Fallback-scrubbed-nMdMhCgrqNcoQQWjdKfkbHjEjIiavCOqBzbc",
+        "airbase_id": "-Fallback-scrubbed-nMdMhCgrqNcoQQWjdKfkbHjEjIiavCOqBzbc", "erp_reference_id":
+        "-Fallback-scrubbed-", "erp_parent_reference_id": null, "name": "Kevin Ray",
+        "is_active": false, "email": null, "subsidiary_reference_ids": []}, {"id":
+        "-Fallback-scrubbed-GOwMhcNstFWiyKfIMteiyjrZbeYvjhegfFSy", "airbase_id": "-Fallback-scrubbed-GOwMhcNstFWiyKfIMteiyjrZbeYvjhegfFSy",
+        "erp_reference_id": "-Fallback-scrubbed-", "erp_parent_reference_id": null,
+        "name": "Sean Henry", "is_active": false, "email": null, "subsidiary_reference_ids":
+        []}, {"id": "-Fallback-scrubbed-NKPjFtcZtPcYPnctmQneQzeLMDGrWORNIQmC", "airbase_id":
+        "-Fallback-scrubbed-NKPjFtcZtPcYPnctmQneQzeLMDGrWORNIQmC", "erp_reference_id":
+        "-Fallback-scrubbed-", "erp_parent_reference_id": null, "name": "John Peck",
+        "is_active": false, "email": null, "subsidiary_reference_ids": []}, {"id":
+        "-Fallback-scrubbed-bUlandfFlkbjIrViDNkPFYyXxHEEarvoUItk", "airbase_id": "-Fallback-scrubbed-bUlandfFlkbjIrViDNkPFYyXxHEEarvoUItk",
+        "erp_reference_id": "-Fallback-scrubbed-", "erp_parent_reference_id": null,
+        "name": "Robert Wolfe", "is_active": false, "email": null, "subsidiary_reference_ids":
+        []}, {"id": "-Fallback-scrubbed-vudZXcSZazGdzAEOqSmjeYLMpbhcAJusAKXn", "airbase_id":
+        "-Fallback-scrubbed-vudZXcSZazGdzAEOqSmjeYLMpbhcAJusAKXn", "erp_reference_id":
+        "-Fallback-scrubbed-", "erp_parent_reference_id": null, "name": "Heidi Pearson",
+        "is_active": false, "email": "terri95@example.org", "subsidiary_reference_ids":
+        []}, {"id": "-Fallback-scrubbed-ZYztcpKPYjWLetQsyCJDvpyXKvnuKyJITkzI", "airbase_id":
+        "-Fallback-scrubbed-ZYztcpKPYjWLetQsyCJDvpyXKvnuKyJITkzI", "erp_reference_id":
+        "-Fallback-scrubbed-", "erp_parent_reference_id": null, "name": "Jonathan
+        Brown", "is_active": false, "email": null, "subsidiary_reference_ids": []},
+        {"id": "-Fallback-scrubbed-JZVgkYYrwYNIvMSutDixhTAupzbnnbrOQZkx", "airbase_id":
+        "-Fallback-scrubbed-JZVgkYYrwYNIvMSutDixhTAupzbnnbrOQZkx", "erp_reference_id":
+        "-Fallback-scrubbed-", "erp_parent_reference_id": null, "name": "Cynthia Smith",
+        "is_active": false, "email": null, "subsidiary_reference_ids": []}, {"id":
+        "-Fallback-scrubbed-nEExWrKEwZzajwBxCAhHTYvNjrqhTTFLcseJ", "airbase_id": "-Fallback-scrubbed-nEExWrKEwZzajwBxCAhHTYvNjrqhTTFLcseJ",
+        "erp_reference_id": "-Fallback-scrubbed-", "erp_parent_reference_id": null,
+        "name": "Virginia Clark", "is_active": false, "email": null, "subsidiary_reference_ids":
+        []}, {"id": "-Fallback-scrubbed-WPOfPxipxXsWuxweadQSOMLMNdbdFcqfhhhE", "airbase_id":
+        "-Fallback-scrubbed-WPOfPxipxXsWuxweadQSOMLMNdbdFcqfhhhE", "erp_reference_id":
+        "-Fallback-scrubbed-", "erp_parent_reference_id": null, "name": "Edward Munoz",
+        "is_active": false, "email": null, "subsidiary_reference_ids": []}, {"id":
+        "-Fallback-scrubbed-VSTquUdGXNGsBsCUaBRAGEmWtnAsuXPKoMJv", "airbase_id": "-Fallback-scrubbed-VSTquUdGXNGsBsCUaBRAGEmWtnAsuXPKoMJv",
+        "erp_reference_id": "-Fallback-scrubbed-", "erp_parent_reference_id": null,
+        "name": "Andrew Morales", "is_active": false, "email": null, "subsidiary_reference_ids":
+        []}, {"id": "-Fallback-scrubbed-ZzhSiDcVouUvqaOtFaOXncORbpSjOSJGdATj", "airbase_id":
+        "-Fallback-scrubbed-ZzhSiDcVouUvqaOtFaOXncORbpSjOSJGdATj", "erp_reference_id":
+        "-Fallback-scrubbed-", "erp_parent_reference_id": null, "name": "Daniel Nelson",
+        "is_active": false, "email": null, "subsidiary_reference_ids": []}], "pagination":
+        {"next": null, "previous": null, "page": 2643, "page_size": 1860}}'
+    headers:
+      Allow:
+      - GET, POST, HEAD, OPTIONS
+      CF-RAY:
+      - a237a57f68bc8583-IAD
+      Cache-Control:
+      - max-age=0, no-cache, no-store, must-revalidate, private
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      Cross-Origin-Opener-Policy:
+      - same-origin
+      Date:
+      - Thu, 30 Jul 2026 22:02:14 GMT
+      Expires:
+      - Thu, 30 Jul 2026 22:02:14 GMT
+      Referrer-Policy:
+      - same-origin
+      Server:
+      - cloudflare
+      Strict-Transport-Security:
+      - max-age=15552000; includeSubDomains; preload
+      Transfer-Encoding:
+      - chunked
+      Vary:
+      - Cookie, origin
+      Via:
+      - 1.1 spaces-router (f8c3f6dfc588)
+      X-Airbase-Auth-Token-Id:
+      - '470'
+      X-Airbase-Release-Version:
+      - v4583
+      X-Content-Type-Options:
+      - nosniff
+      X-Ratelimit-Limit:
+      - '500'
+      X-Ratelimit-Remaining:
+      - '482'
+      X-Request-Id:
+      - 8c09dd22-9012-db32-a472-78842018713a
+      alt-svc:
+      - h3=":443"; ma=86400
+      cf-cache-status:
+      - DYNAMIC
+      content-length:
+      - '2627'
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      User-Agent:
+      - python-requests/2.32.3
+    method: GET
+    uri: https://api-stage.airbase.io/v1/accounting/vendors/?erp_reference_id=&page=2
+  response:
+    body:
+      string: '{"data": [], "pagination": {"next": null, "previous": null, "page":
+        1886, "page_size": 1860}}'
+    headers:
+      Allow:
+      - GET, POST, HEAD, OPTIONS
+      CF-RAY:
+      - a237a580cd1a8583-IAD
+      Cache-Control:
+      - max-age=0, no-cache, no-store, must-revalidate, private
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      Cross-Origin-Opener-Policy:
+      - same-origin
+      Date:
+      - Thu, 30 Jul 2026 22:02:14 GMT
+      Expires:
+      - Thu, 30 Jul 2026 22:02:14 GMT
+      Referrer-Policy:
+      - same-origin
+      Server:
+      - cloudflare
+      Strict-Transport-Security:
+      - max-age=15552000; includeSubDomains; preload
+      Transfer-Encoding:
+      - chunked
+      Vary:
+      - Cookie, origin
+      Via:
+      - 1.1 spaces-router (f8c3f6dfc588)
+      X-Airbase-Auth-Token-Id:
+      - '470'
+      X-Airbase-Release-Version:
+      - v4583
+      X-Content-Type-Options:
+      - nosniff
+      X-Ratelimit-Limit:
+      - '500'
+      X-Ratelimit-Remaining:
+      - '481'
+      X-Request-Id:
+      - 95091fb3-ed59-df40-e8f7-f5e80af0386e
+      alt-svc:
+      - h3=":443"; ma=86400
+      cf-cache-status:
+      - DYNAMIC
+      content-length:
+      - '79'
+    status:
+      code: 200
+      message: OK
+version: 1
