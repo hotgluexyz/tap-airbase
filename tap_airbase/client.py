@@ -5,6 +5,7 @@ from __future__ import annotations
 from typing import Any
 
 import requests
+from hotglue_etl_exceptions import InvalidCredentialsError
 from hotglue_singer_sdk.authenticators import APIKeyAuthenticator
 from hotglue_singer_sdk.streams import RESTStream
 from typing_extensions import override
@@ -37,6 +38,15 @@ class AirbaseStream(RESTStream):
     @property
     def http_headers(self) -> dict[str, str]:
         return {"Accept": "application/json"}
+
+    @override
+    def validate_response(self, response: requests.Response) -> None:
+        if response.status_code == 401:
+            raise InvalidCredentialsError(
+                f"{response.status_code} Client Error: {response.reason} "
+                f"for path: {self.path} Response: {response.text}"
+            )
+        super().validate_response(response)
 
     @override
     def get_next_page_token(
