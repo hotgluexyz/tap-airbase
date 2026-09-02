@@ -48,6 +48,11 @@ SUBSIDIARY_REFERENCE = th.ObjectType(
     th.Property("erp_reference_id", th.StringType),
 )
 
+AMOUNT = th.ObjectType(
+    th.Property("amount", th.StringType),
+    th.Property("currency", CURRENCY),
+)
+
 
 class LedgerEntriesStream(AirbaseStream):
     """Airbase accounting ledger entries."""
@@ -84,6 +89,12 @@ class LedgerEntriesStream(AirbaseStream):
         th.Property("amortization_start_date", th.DateTimeType),
         th.Property("amortization_end_date", th.DateTimeType),
         th.Property("expense_list", th.ArrayType(EXPENSE_LINE)),
+        th.Property("amounts", th.ObjectType(
+            th.Property("amount", AMOUNT),
+            th.Property("transaction_amount", AMOUNT),
+            th.Property("settlement_amount", AMOUNT),
+            th.Property("subsidiary_amount", AMOUNT),
+        )),
     ).to_dict()
 
 
