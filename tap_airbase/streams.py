@@ -105,6 +105,12 @@ class LedgerEntriesStream(AirbaseStream):
         context: dict | None,
         next_page_token,
     ) -> dict:
+        """
+        Return URL parameters for the ledger_entries endpoint.
+
+        Adds a 'status' parameter to the URL params if 'ledger_entry_status'
+        is set in the configuration. Without the param Airbase syncs by default only 'sync_ready' entries.
+        """
         params = super().get_url_params(context, next_page_token)
         if self.config.get("ledger_entry_status"):
             params["status"] = self.config.get("ledger_entry_status")
@@ -112,6 +118,18 @@ class LedgerEntriesStream(AirbaseStream):
 
     @override
     def post_process(self, row: dict, context: dict | None) -> dict:
+        """
+        If 'ledger_entry_types' is set in the configuration, only return rows whose
+        'type' field is present in the provided ledger_entry_types (comma-separated).
+        Otherwise, return the row as-is.
+
+        Args:
+            row (dict): The row (record) to post-process.
+            context (dict | None): The stream context.
+
+        Returns:
+            dict: The processed row, or None if the type is not accepted.
+        """
         row = super().post_process(row, context)
         ledger_entry_types = self.config.get("ledger_entry_types")
         if ledger_entry_types:
