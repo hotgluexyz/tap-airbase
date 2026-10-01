@@ -41,6 +41,8 @@ EXPENSE_LINE = th.ObjectType(
     th.Property("amount", th.StringType),
     th.Property("tags", th.ArrayType(th.CustomType({}))),
     th.Property("description", th.StringType),
+    th.Property("amortization_start_date", th.DateTimeType),
+    th.Property("amortization_end_date", th.DateTimeType),
 )
 
 SUBSIDIARY_REFERENCE = th.ObjectType(
@@ -96,6 +98,47 @@ class LedgerEntriesStream(AirbaseStream):
             th.Property("subsidiary_amount", AMOUNT),
         )),
     ).to_dict()
+
+    @override
+    def get_url_params(
+        self,
+        context: dict | None,
+        next_page_token,
+    ) -> dict:
+        """
+        Return URL parameters for the ledger_entries endpoint.
+
+        Adds a 'status' parameter to the URL params if 'ledger_entry_status'
+        is set in the configuration. Without the param Airbase syncs by default only 'sync_ready' entries.
+        """
+        params = super().get_url_params(context, next_page_token)
+        if self.config.get("ledger_entry_status"):
+            params["status"] = self.config.get("ledger_entry_status")
+        return params
+
+    @override
+    def post_process(self, row: dict, context: dict | None) -> dict:
+        """
+        If 'ledger_entry_types' is set in the configuration, only return rows whose
+        'type' field is present in the provided ledger_entry_types (comma-separated).
+        Otherwise, return the row as-is.
+
+        Args:
+            row (dict): The row (record) to post-process.
+            context (dict | None): The stream context.
+
+        Returns:
+            dict: The processed row, or None if the type is not accepted.
+        """
+        row = super().post_process(row, context)
+        ledger_entry_types = self.config.get("ledger_entry_types")
+        if ledger_entry_types:
+            ledger_entry_types = ledger_entry_types.split(",")
+            ledger_entry_types = [ledger_entry_type.strip() for ledger_entry_type in ledger_entry_types]
+            if row["type"] in ledger_entry_types:
+                return row
+        else:
+            return row
 
 
 class VendorsStream(AirbaseStream):
