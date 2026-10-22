@@ -114,6 +114,9 @@ class LedgerEntriesStream(AirbaseStream):
         params = super().get_url_params(context, next_page_token)
         if self.config.get("ledger_entry_status"):
             params["status"] = self.config.get("ledger_entry_status")
+        if self.config.get("entry_date_start") and self.config.get("entry_date_end"):
+            params["entry_date_start"] = self.config.get("entry_date_start")
+            params["entry_date_end"] = self.config.get("entry_date_end")
         return params
 
     @override
