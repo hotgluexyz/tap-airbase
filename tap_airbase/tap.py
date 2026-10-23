@@ -9,6 +9,7 @@ from hotglue_singer_sdk import Tap, Stream
 from hotglue_singer_sdk import typing as th
 from hotglue_singer_sdk.helpers.capabilities import AlertingLevel
 
+from tap_airbase.auth import AirbaseAuthenticator
 from tap_airbase.streams import LedgerEntriesStream, VendorsStream
 
 
@@ -40,6 +41,10 @@ class TapAirbase(Tap):
             description="Earliest record date (reserved for future incremental sync)",
         ),
     ).to_dict()
+
+    @classmethod
+    def access_token_support(cls, connector=None):
+        return AirbaseAuthenticator, None
 
     def discover_streams(self) -> List[Stream]:
         return [
