@@ -7,6 +7,8 @@ from typing_extensions import override
 
 from tap_airbase.client import AirbaseStream
 
+from datetime import datetime
+
 SPEND_OWNER = th.ObjectType(
     th.Property("name", th.StringType),
     th.Property("email", th.StringType),
@@ -114,6 +116,16 @@ class LedgerEntriesStream(AirbaseStream):
         params = super().get_url_params(context, next_page_token)
         if self.config.get("ledger_entry_status"):
             params["status"] = self.config.get("ledger_entry_status")
+        if self.config.get("filter_by_entry_date"):
+            start_date_raw = self.config.get("start_date")
+            if start_date_raw:
+                start_date = datetime.fromisoformat(start_date_raw.replace("Z", "+00:00")).strftime("%Y-%m-%d")
+            else:
+                raise ValueError("start_date is required for filtering by entry date")
+            end_date = datetime.now().strftime("%Y-%m-%d")
+            params["entry_date_start"] = start_date
+            params["entry_date_end"] = end_date
+
         return params
 
     @override
