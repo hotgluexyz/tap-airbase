@@ -80,6 +80,7 @@ class LedgerEntriesStream(AirbaseStream):
         th.Property("invoice_number", th.StringType),
         th.Property("bank_account", th.ObjectType()),
         th.Property("ap_account", ACCOUNT),
+        th.Property("posting_date", th.DateTimeType),
         th.Property("applied_to", th.ObjectType()),
         th.Property("receipt_link", th.StringType),
         th.Property("entry_date", th.DateTimeType),
