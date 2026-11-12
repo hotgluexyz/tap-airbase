@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import os
 import re
+import tempfile
 from datetime import datetime
 from urllib.parse import unquote, urlparse
 
@@ -261,21 +262,30 @@ class LedgerEntriesStream(AirbaseStream):
                 attachments_root,
             )
             return None
+        temp_path = None
         try:
             os.makedirs(os.path.dirname(target_path), exist_ok=True)
             with requests.get(url, stream=True, timeout=60) as response:
                 response.raise_for_status()
-                with open(target_path, "wb") as handle:
+                with tempfile.NamedTemporaryFile(
+                    mode="wb", dir=os.path.dirname(target_path), delete=False
+                ) as handle:
+                    temp_path = handle.name
                     for chunk in response.iter_content(chunk_size=8192):
                         if chunk:
                             handle.write(chunk)
+            os.replace(temp_path, target_path)
+            temp_path = None
             self.logger.info("Downloaded attachment to %s", target_path)
             return relative_path
         except Exception as ex:
+            if temp_path and os.path.exists(temp_path):
+                os.remove(temp_path)
+            logged_url = urlparse(url)._replace(query="", fragment="").geturl()
             self.logger.warning(
                 "Failed to download attachment %s from %s: %s",
                 attachment.get("id"),
-                url,
+                logged_url,
                 ex,
             )
             return None
