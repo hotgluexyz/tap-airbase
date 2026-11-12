@@ -227,7 +227,7 @@ class LedgerEntriesStream(AirbaseStream):
 
         row["attachments"] = receipt_attachments(row)
         if self.config.get("download_attachments", True):
-            record_id = row.get("airbase_id") or "unknown"
+            record_id = row.get("erp_reference_id") or row.get("airbase_id") or "unknown"
             for attachment in row["attachments"]:
                 attachment["attachment_path"] = self._download_attachment(
                     attachment, record_id
