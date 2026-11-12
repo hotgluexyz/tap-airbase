@@ -2,12 +2,16 @@
 
 from __future__ import annotations
 
+import os
+import re
+from datetime import datetime
+from urllib.parse import unquote, urlparse
+
+import requests
 from hotglue_singer_sdk import typing as th
 from typing_extensions import override
 
 from tap_airbase.client import AirbaseStream
-
-from datetime import datetime
 
 SPEND_OWNER = th.ObjectType(
     th.Property("name", th.StringType),
@@ -57,6 +61,66 @@ AMOUNT = th.ObjectType(
     th.Property("currency", CURRENCY),
 )
 
+# Same attachment shape as tap-airwallex. Rillet accepts these types on
+# bills, charges, and reimbursements.
+_EXTENSION_CONTENT_TYPES = {
+    "pdf": "application/pdf",
+    "txt": "text/plain",
+    "jpg": "image/jpeg",
+    "jpeg": "image/jpeg",
+    "png": "image/png",
+    "gif": "image/gif",
+    "xlsx": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    "xls": "application/vnd.ms-excel",
+    "docx": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    "doc": "application/msword",
+    "csv": "text/csv",
+    "rtf": "application/rtf",
+    "tif": "image/tiff",
+    "tiff": "image/tiff",
+    "bmp": "image/bmp",
+    "pages": "application/vnd.apple.pages",
+    "numbers": "application/vnd.apple.numbers",
+    "pptx": "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+    "ppt": "application/vnd.ms-powerpoint",
+}
+
+ATTACHMENT = th.ObjectType(
+    th.Property("id", th.StringType),
+    th.Property("file_name", th.StringType),
+    th.Property("file_url", th.StringType),
+    th.Property("content_type", th.StringType),
+    th.Property("attachment_path", th.StringType),
+)
+
+
+def receipt_attachments(row: dict) -> list[dict]:
+    """Collect header and line receipt links into Airwallex-style attachments."""
+    urls: list[str] = []
+    header_url = row.get("receipt_link")
+    if header_url:
+        urls.append(header_url)
+    for line in row.get("expense_list") or []:
+        line_url = (line or {}).get("receipt_link")
+        if line_url and line_url not in urls:
+            urls.append(line_url)
+
+    attachments = []
+    record_id = row.get("airbase_id") or "receipt"
+    for index, url in enumerate(urls):
+        path = unquote(urlparse(url).path)
+        file_name = path.rsplit("/", 1)[-1] or f"{record_id}_{index}"
+        extension = file_name.rsplit(".", 1)[-1].lower() if "." in file_name else ""
+        attachments.append(
+            {
+                "id": f"{record_id}_{index}",
+                "file_name": file_name,
+                "file_url": url,
+                "content_type": _EXTENSION_CONTENT_TYPES.get(extension),
+            }
+        )
+    return attachments
+
 
 class LedgerEntriesStream(AirbaseStream):
     """Airbase accounting ledger entries."""
@@ -83,6 +147,7 @@ class LedgerEntriesStream(AirbaseStream):
         th.Property("posting_date", th.DateTimeType),
         th.Property("applied_to", th.ObjectType()),
         th.Property("receipt_link", th.StringType),
+        th.Property("attachments", th.ArrayType(ATTACHMENT)),
         th.Property("entry_date", th.DateTimeType),
         th.Property("payment_entry_date", th.DateTimeType),
         th.Property("currency", CURRENCY),
@@ -136,6 +201,9 @@ class LedgerEntriesStream(AirbaseStream):
         'type' field is present in the provided ledger_entry_types (comma-separated).
         Otherwise, return the row as-is.
 
+        Receipt links on the entry and its expense lines are copied to attachments
+        so bills, charges, and reimbursements can upload the same file types.
+
         Args:
             row (dict): The row (record) to post-process.
             context (dict | None): The stream context.
@@ -144,14 +212,73 @@ class LedgerEntriesStream(AirbaseStream):
             dict: The processed row, or None if the type is not accepted.
         """
         row = super().post_process(row, context)
+        if not row:
+            return row
+
         ledger_entry_types = self.config.get("ledger_entry_types")
         if ledger_entry_types:
-            ledger_entry_types = ledger_entry_types.split(",")
-            ledger_entry_types = [ledger_entry_type.strip() for ledger_entry_type in ledger_entry_types]
-            if row["type"] in ledger_entry_types:
-                return row
-        else:
-            return row
+            allowed_types = [
+                ledger_entry_type.strip()
+                for ledger_entry_type in ledger_entry_types.split(",")
+            ]
+            if row.get("type") not in allowed_types:
+                return None
+
+        row["attachments"] = receipt_attachments(row)
+        if self.config.get("download_attachments", True):
+            record_id = row.get("airbase_id") or "unknown"
+            for attachment in row["attachments"]:
+                attachment["attachment_path"] = self._download_attachment(
+                    attachment, record_id
+                )
+        return row
+
+    def _download_attachment(self, attachment: dict, record_id: str) -> str | None:
+        """Download a receipt and return its path relative to sync-output."""
+        url = attachment.get("file_url")
+        if not url:
+            return None
+
+        file_name = attachment.get("file_name") or "attachment"
+        file_name = os.path.basename(file_name.strip())
+        file_name = re.sub(r'[<>:"/\\|?*\x00-\x1f]', "_", file_name) or "attachment"
+        if attachment.get("id") is not None:
+            file_name = f"{attachment['id']}_{file_name}"
+
+        sync_output = self.get_sync_output_folder()
+        attachments_root = os.path.realpath(os.path.join(sync_output, "attachments"))
+        relative_path = os.path.join("attachments", str(record_id), file_name)
+        target_path = os.path.realpath(os.path.join(sync_output, relative_path))
+        try:
+            contained = os.path.commonpath([attachments_root, target_path]) == attachments_root
+        except ValueError:
+            contained = False
+        if not contained or target_path == attachments_root:
+            self.logger.warning(
+                "Skipping attachment %s: destination %s is outside %s",
+                attachment.get("id"),
+                target_path,
+                attachments_root,
+            )
+            return None
+        try:
+            os.makedirs(os.path.dirname(target_path), exist_ok=True)
+            with requests.get(url, stream=True, timeout=60) as response:
+                response.raise_for_status()
+                with open(target_path, "wb") as handle:
+                    for chunk in response.iter_content(chunk_size=8192):
+                        if chunk:
+                            handle.write(chunk)
+            self.logger.info("Downloaded attachment to %s", target_path)
+            return relative_path
+        except Exception as ex:
+            self.logger.warning(
+                "Failed to download attachment %s from %s: %s",
+                attachment.get("id"),
+                url,
+                ex,
+            )
+            return None
 
 
 class VendorsStream(AirbaseStream):

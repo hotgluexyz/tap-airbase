@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 from typing import Any
 
 import requests
@@ -70,3 +71,15 @@ class AirbaseStream(RESTStream):
         if next_page_token:
             params["page"] = next_page_token
         return params
+
+    def get_sync_output_folder(self) -> str:
+        """Return the folder downloaded attachments are written under.
+
+        In the hotglue runtime ``JOB_ID`` is set and files are uploaded from
+        ``/home/hotglue/{job_id}/sync-output``. Locally we fall back to a
+        ``sync-output`` directory (overridable via the ``output_dir`` config).
+        """
+        job_id = os.environ.get("JOB_ID")
+        if job_id:
+            return f"/home/hotglue/{job_id}/sync-output"
+        return self.config.get("output_dir", "sync-output")

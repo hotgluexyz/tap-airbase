@@ -66,6 +66,23 @@ class TapAirbase(Tap):
                 "whose type is in this list are emitted from ledger_entries."
             ),
         ),
+        th.Property(
+            "download_attachments",
+            th.BooleanType,
+            default=True,
+            description=(
+                "Download ledger entry receipt files into the sync-output folder "
+                "and set attachments[].attachment_path."
+            ),
+        ),
+        th.Property(
+            "output_dir",
+            th.StringType,
+            description=(
+                "Local folder for downloaded attachments when JOB_ID is not set. "
+                "Defaults to sync-output."
+            ),
+        ),
     ).to_dict()
 
     def discover_streams(self) -> List[Stream]:
